@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>LicenseAuth Clone</title>
+  <style>
+    body { font-family: Arial; background: #f0f2f5; display: flex; justify-content: center; padding-top: 80px; }
+    .card { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); width: 320px; }
+    input { width: 100%; padding: 10px; margin: 8px 0; border: 1px solid #ccc; border-radius: 6px; }
+    button { width: 100%; padding: 10px; background: #1877f2; color: white; border: none; border-radius: 6px; cursor: pointer; }
+    .switch { text-align: center; margin-top: 12px; cursor: pointer; color: #1877f2; }
+    .error { color: red; font-size: 14px; }
+  </style>
+</head>
+<body>
+<div class="card" id="app">
+  <h2 id="formTitle">Welcome Back!</h2>
+  <input type="text" id="username" placeholder="Username" />
+  <input type="password" id="password" placeholder="Password" />
+  <button id="submitBtn">Sign In</button>
+  <div class="switch" id="switchBtn">Don't have an account? Signup</div>
+  <div id="msg" class="error"></div>
+</div>
+<script>
+  let isLogin = true;
+  const API = 'https://your-backend-url.onrender.com'; // later change koro
+
+  const switchBtn = document.getElementById('switchBtn');
+  const submitBtn = document.getElementById('submitBtn');
+  const formTitle = document.getElementById('formTitle');
+
+  switchBtn.onclick = () => {
+    isLogin = !isLogin;
+    formTitle.innerText = isLogin ? 'Welcome Back!' : 'Create Account';
+    submitBtn.innerText = isLogin ? 'Sign In' : 'Sign Up';
+    switchBtn.innerText = isLogin ? "Don't have an account? Signup" : 'Already have an account? Login';
+  };
+
+  submitBtn.onclick = async () => {
+    const username = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
+    const endpoint = isLogin ? '/login' : '/signup';
+    const res = await fetch(API + endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, password })
+    });
+    const data = await res.json();
+    if (res.ok) {
+      if (isLogin) localStorage.setItem('token', data.token);
+      document.getElementById('msg').innerText = isLogin ? 'Logged in! License: ' + data.license_key : 'Signed up! License: ' + data.license_key;
+    } else {
+      document.getElementById('msg').innerText = data.error;
+    }
+  };
+</script>
+</body>
+</html>
